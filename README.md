@@ -1,9 +1,13 @@
 # Alura-chalenge
  
-Essa é uma API que ainda está em desenvolvimento, requisitada pelo challenge da alura, mais abaixo terá o 
+>Essa é uma API que ainda está em desenvolvimento, requisitada pelo challenge da alura, mais abaixo terá o 
 passo a passo para usala.😁
 
-A primeira coisa é baixar as dependencias dando um *__npm install__*, assim baixando todos os modulos que serão utilizados.😁
+A primeira coisa é baixar as dependencias utilizando:
+```
+npm install
+```
+Assim baixando todos os modulos que serão utilizados.😁
 Essa api é feita utilizando a ORM __prisma__, e o banco __Mysql__, então você terar que instalar o mysql em sua maquina.❤️
 Apos todo esse processo, voce terá que criar um arquivo __.env__ para guardar a chave de conecção com o seu banco,
 ele será utilizado no prisma\schema.prisma no lugar que está o DATABASE_URL, você coloca a sua chave.✨
