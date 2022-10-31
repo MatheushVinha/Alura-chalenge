@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ## Api Aluraflix
 Essa API foi idealizada para o desafio back-end 5°.Com o objetivo de cadastrar novos vídeos em um banco de dados
 
