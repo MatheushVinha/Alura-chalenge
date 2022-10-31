@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 ## Api Aluraflix
 Essa API foi idealizada para o desafio back-end 5°.Com o objetivo de cadastrar novos vídeos em um banco de dados
 
@@ -57,7 +56,7 @@ Todos eles sendo obrigatórios
 Apos a insertação ao banco de dados a api retorna um JSON com o video
 
 
-![Homepage image](src\public\img\Post-videos.jpg)
+![Homepage image](src/public/img/Post-videos.jpg)
 
 
 ### Ver todos os videos 
