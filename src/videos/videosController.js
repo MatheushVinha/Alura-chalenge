@@ -5,7 +5,7 @@ function validaCorpo(titulo, descricao, url) {
   if (!titulo || titulo.length > 30 || titulo.length < 5) {
     throw new Error('Titulo não pode ser estar vazio, ter menos que 5 caracteres ou mais que 30')
   }
-  if (!descricao || descricao.length > 150 || descricao.length < 5) {
+  if (!descricao || descricao.length > 250 || descricao.length < 5) {
     throw new Error('Descrição não pode ser estar vazio, ter menos que 5 caracteres ou mais que 150')
   }
   if (!url || url.length > 150 || url.length < 5) {
@@ -93,7 +93,7 @@ module.exports = {
       if (descricao && descricao.length > 150 || descricao && descricao.length < 5) {
         throw new Error('Descrição não pode ser estar vazio, ter menos que 5 caracteres ou mais que 150')
       }
-      if (url && url.length > 150 || url && url.length < 5) {
+      if (url && url.length > 250 || url && url.length < 5) {
         throw new Error('Url não pode ser estar vazio, ter menos que 5 caracteres ou mais que 150')
       }
 

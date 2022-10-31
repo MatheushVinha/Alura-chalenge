@@ -8,4 +8,4 @@ app.use(bodyParser.json())
 routes(app)
 
 
-app.listen(port, () => { console.log('Server rodando')})
+app.listen(port, () => { console.log(`Server rodando na porta ${port}`)})
