@@ -34,7 +34,6 @@ module.exports = {
         titulo: titulo
       }
     })
-
     if (categoriaExistente) {
       return res.status(400).json({ status: 'Categoria já existente' })
     }

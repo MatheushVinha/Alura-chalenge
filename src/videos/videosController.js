@@ -165,7 +165,6 @@ module.exports = {
   async showVideoByCategoria(req, res) {
 
     const { id } = req.params
-
     try {
 
       const categorias = await prisma.categorias.findUnique({
@@ -179,9 +178,7 @@ module.exports = {
             }
           }
         }
-      }
-
-      )
+      })
 
       res.status(200).json({ categorias })
 
@@ -189,4 +186,5 @@ module.exports = {
       return res.status(500).json({ error: error.message })
     }
   },
+  
 }
