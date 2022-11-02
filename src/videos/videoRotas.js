@@ -2,13 +2,14 @@ const videosController = require('./videosController')
 
 module.exports = app => {
   app.route('/videos')
+    .get(videosController.showVideos)
+    // .get(videosController.showVideoByQuery)
     .post(videosController.newVideo)
   app.route('/videos/:id')
     .get(videosController.showVideosByid)
-  app.route('/videos')
-    .get(videosController.showVideos)
-  app.route('/videos/:id')
     .delete(videosController.deleteVideos)
   app.route('/patch')
     .put(videosController.updateVideos)
+  app.route('/categorias/:id/videos/')
+    .get(videosController.showVideoByCategoria)
 }

@@ -11,8 +11,17 @@ datasource db {
 }
 
 model Videos {
-  id        Int    @id @default(autoincrement())
-  titulo    String
-  descricao String
-  url       String
+  id           Int        @id @default(autoincrement())
+  titulo       String
+  descricao    String
+  url          String
+  categorias   Categorias @relation(fields: [categoria_id], references: [id])
+  categoria_id Int
+}
+
+model Categorias {
+  id     Int      @id @default(autoincrement())
+  titulo String   @unique
+  cor    String
+  Videos Videos[]
 }
