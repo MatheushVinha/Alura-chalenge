@@ -1,45 +1,51 @@
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient
 
-function ValidaUpdate(id, titulo, cor) {
-  if (titulo && titulo.length > 30 || titulo && titulo.length < 3) {
-    throw new Error('Totulo não pode ser estar vazio, ter menos que 10 caracteres ou mais que 30')
+function ValidaBody(titulo, cor) {
+
+  function error(field, min, max) {
+    throw new Error(`${field} não pode ser estar vazio, ter menos que ${min} caracteres ou mais que ${max}`)
   }
-  if (!id) {
+
+  if (titulo && titulo.length > 30 || titulo && titulo.length < 3)
+    error('Titulo', 3, 30)
+  if (!/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(cor)) {
+    throw new Error('Cor deve seguir o padrão hex.Exemplo: "#xxx" ou "#xxxxxx"')
+  }
+
+}
+
+function validateUpdate(id, titulo, cor) {
+
+  function error(field, min, max) {
+    throw new Error(`${field} não pode ser estar vazio, ter menos que ${min} caracteres ou mais que ${max}`)
+  }
+  if (titulo && titulo.length > 30 || titulo && titulo.length < 5)
+    error('titulo', 5, 30)
+  if (!id)
     throw new Error('Id não pode está vazio')
-  }
-  //aqui q eu mudo pra mecher na cor
-  if (cor && cor.length != 7) {
-    throw new Error('Cor deve seguir o padrão hex')
+  if (!/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(cor)) {
+    throw new Error('Cor deve seguir o padrão hex.Exemplo: "#xxx" ou "#xxxxxx"')
   }
 }
 
 module.exports = {
-  //incrementar essa função, deixar ser apenas hex ou cor pura mão sei
   async newCategorias(req, res) {
 
     let { titulo, cor } = req.body
 
-    //validar se tem no corpo
-    if (!titulo || !cor) {
-      return res.status(400).json({ status: 'Titulo e cor são obrigatorios' })
-    }
-    //validar se cor é hax
-    if (!/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(cor)) {
-      return res.status(400).json({ status: 'Cor deve seguir o padrão hex.Exemplo: "#xxx" ou "#xxxxxx"' })
-    }
-    //validase se tem no banco
-    const categoriaExistente = await prisma.categorias.findUnique({
-      where: {
-        titulo: titulo
-      }
-    })
-    if (categoriaExistente) {
-      return res.status(400).json({ status: 'Categoria já existente' })
-    }
-
-    //criar
     try {
+      ValidaBody(titulo, cor)
+
+      const categoriaExistente = await prisma.categorias.findUnique({
+        where: {
+          titulo: titulo
+        }
+      })
+      if (categoriaExistente) {
+        return res.status(400).json({ status: 'Categoria já existente' })
+      }
+
       const categoria = await prisma.categorias.create({
         data: {
           titulo: titulo,
@@ -62,7 +68,7 @@ module.exports = {
           id: Number(id)
         }
       })
-      
+
       if (!categoria) {
         return res.status(400).json({ status: 'id não foi encondro' })
       }
@@ -102,13 +108,9 @@ module.exports = {
   async updateCategorias(req, res) {
     let { id, titulo, cor } = req.body
 
-    if (!/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(cor)) {
-      return res.status(400).json({ status: 'Cor deve seguir o padrão hex.Exemplo: "#xxx" ou "#xxxxxx"' })
-    }
-
-
     try {
-      ValidaUpdate(titulo, cor)
+
+      validateUpdate(id, titulo, cor)
 
       await prisma.categorias.update({
         where: { id: Number(id) },

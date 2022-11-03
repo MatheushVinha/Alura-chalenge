@@ -1,27 +1,33 @@
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient
+const MiniSearch = require('minisearch')
 
-function validaCorpo(titulo, descricao, url) {
-  if (!titulo || titulo.length > 30 || titulo.length < 5) {
-    throw new Error('Titulo não pode ser estar vazio, ter menos que 5 caracteres ou mais que 30')
+function validateBody(titulo, descricao, url) {
+
+  function error(field, min, max) {
+    throw new Error(`${field} não pode ser estar vazio, ter menos que ${min} caracteres ou mais que ${max}`)
   }
-  if (!descricao || descricao.length > 250 || descricao.length < 5) {
-    throw new Error('Descrição não pode ser estar vazio, ter menos que 5 caracteres ou mais que 150')
-  }
-  if (!url || url.length > 150 || url.length < 5) {
-    throw new Error('Url não pode ser estar vazio, ter menos que 5 caracteres ou mais que 150')
-  }
+
+  if (!titulo || titulo.length > 30 || titulo.length < 5)
+    error('titulo', 5, 30)
+  if (!descricao || descricao.length > 250 || descricao.length < 5)
+    error('descricao', 5, 250)
+  if (!url || url.length > 150 || url.length < 5)
+    error('url', 5, 150)
 }
-function ValidaUpdate(titulo, descricao, url) {
-  if (titulo && titulo.length > 30 || titulo && titulo.length < 5) {
-    throw new Error('Titulo não pode ser estar vazio, ter menos que 5 caracteres ou mais que 30')
+
+function validateUpdate(titulo, descricao, url) {
+
+  function error(field, min, max) {
+    throw new Error(`${field} não pode ser estar vazio, ter menos que ${min} caracteres ou mais que ${max}`)
   }
-  if (descricao && descricao.length > 350 || descricao && descricao.length < 5) {
-    throw new Error('Descrição não pode ser estar vazio, ter menos que 5 caracteres ou mais que 150')
-  }
-  if (url && url.length > 150 || url && url.length < 5) {
-    throw new Error('Url não pode ser estar vazio, ter menos que 5 caracteres ou mais que 150')
-  }
+
+  if (titulo && titulo.length > 30 || titulo && titulo.length < 5)
+    error('titulo', 5, 30)
+  if (descricao && descricao.length > 350 || descricao && descricao.length < 5)
+    error('descricao', 5, 350)
+  if (url && url.length > 150 || url && url.length < 5)
+    error('url', 5, 150)
 }
 
 module.exports = {
@@ -38,7 +44,7 @@ module.exports = {
     }
 
     try {
-      validaCorpo(titulo, descricao, url)
+      validateBody(titulo, descricao, url)
       const video = await prisma.videos.create({
         data: {
           titulo: titulo,
@@ -76,26 +82,32 @@ module.exports = {
   async showVideos(req, res) {
 
     const { search } = req.query
-    //query params
     if (search) {
 
       if (Array.isArray(search)) {
         return res.status(400).json({ erro: 'Serch só pode receber uma propriedade' })
       }
-      try {
 
-        const videos = await prisma.videos.findMany({
-          where: { titulo: { contains: search } }
-        })
-
-        if (!videos) {
-          return res.status(500).json({ mensagem: "Video não encontrado" })
+      let minisearch = new MiniSearch({
+        fields: ['titulo'],
+        storageFields: ['id'],
+        searchOptions: {
+          fuzzy: 0.2,
+          prefix: true
         }
-        return res.status(200).json({ videos })
+      })
 
-      } catch (error) {
-        return res.status(500).json({ error: error.message })
-      }
+      const videosBase = await prisma.videos.findMany({})
+
+      minisearch.addAll(videosBase)
+
+      let results = minisearch.search(decodeURIComponent(search)).map(resultado => resultado.id)
+
+      let resultadoBusca = videosBase.filter(video => results.some(result => video.id == result))
+
+      return res.status(200).json({ resultadoBusca })
+
+
     }
     //All videos
     try {
@@ -126,9 +138,7 @@ module.exports = {
 
     } catch (error) {
       return res.status(500).json({ error: error.message })
-
     }
-
   },
 
   async updateVideos(req, res) {
@@ -136,7 +146,7 @@ module.exports = {
 
     try {
 
-      ValidaUpdate(titulo, descricao, url)
+      validateUpdate(titulo, descricao, url)
 
       const updateVideo = await prisma.videos.update({
         where: { id: Number(id) }
@@ -159,7 +169,6 @@ module.exports = {
     } catch (error) {
       return res.status(500).json({ error: error.message })
     }
-
   },
 
   async showVideoByCategoria(req, res) {
@@ -186,5 +195,5 @@ module.exports = {
       return res.status(500).json({ error: error.message })
     }
   },
-  
+
 }
