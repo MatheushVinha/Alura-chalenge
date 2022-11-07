@@ -3,7 +3,6 @@ const videosController = require('./videosController')
 module.exports = app => {
   app.route('/videos')
     .get(videosController.showVideos)
-    // .get(videosController.showVideoByQuery)
     .post(videosController.newVideo)
   app.route('/videos/:id')
     .get(videosController.showVideosByid)

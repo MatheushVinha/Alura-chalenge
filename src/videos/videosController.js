@@ -80,35 +80,77 @@ module.exports = {
   },
 
   async showVideos(req, res) {
+    const { search, page } = req.query
 
-    const { search } = req.query
-    if (search) {
-
-      if (Array.isArray(search)) {
-        return res.status(400).json({ erro: 'Serch só pode receber uma propriedade' })
-      }
-
-      let minisearch = new MiniSearch({
-        fields: ['titulo'],
-        storageFields: ['id'],
-        searchOptions: {
-          fuzzy: 0.2,
-          prefix: true
+    //query
+    try {
+      if (search) {
+        if (Array.isArray(search)) {
+          return res.status(400).json({ erro: 'Serch só pode receber uma propriedade' })
         }
-      })
 
-      const videosBase = await prisma.videos.findMany({})
+        let minisearch = new MiniSearch({
+          fields: ['titulo'],
+          storageFields: ['id'],
+          searchOptions: {
+            fuzzy: 0.2,
+            prefix: true
+          },
+          tokenize: (string, _fieldName) => string.split('+')
+        })
 
-      minisearch.addAll(videosBase)
+        const videosBase = await prisma.videos.findMany({})
 
-      let results = minisearch.search(decodeURIComponent(search)).map(resultado => resultado.id)
+        minisearch.addAll(videosBase)
+        let results = minisearch.search(decodeURIComponent(search)).map(resultado => resultado.id).slice(0, 5)
+        let resultsSearch = videosBase.filter(video => results.some(result => video.id == result))
+        return res.status(200).json({ resultsSearch })
 
-      let resultadoBusca = videosBase.filter(video => results.some(result => video.id == result))
 
-      return res.status(200).json({ resultadoBusca })
-
-
+      }
+    } catch (error) {
+      return res.status(500).json({ error: error.message })
     }
+
+    //page limiter
+    try {
+      if (page) {
+
+
+
+        const videosBase = await prisma.videos.findMany()
+        const numberPages = Math.ceil(videosBase.length / 5)
+
+        if (page > numberPages) {
+          return res.status(400).json({ mensagem: "Pagina não encontrada" })
+        }
+        const amountInPage = 5
+
+        let pagina = Number(page)
+
+        if (!pagina) {
+          pagina = 1
+        } else {
+          pagina = pagina
+        }
+
+        let inicialLine = pagina - 1
+        let start = inicialLine * amountInPage
+
+        const videoDaPagina = await prisma.videos.findMany({
+          skip: start,
+          take: 5
+        })
+
+        return res.json({ videoDaPagina })
+
+
+      }
+    } catch (error) {
+      return res.status(500).json({ error: error.message })
+    }
+
+
     //All videos
     try {
       const videos = await prisma.videos.findMany()
