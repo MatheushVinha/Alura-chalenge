@@ -25,3 +25,10 @@ model Categorias {
   cor    String
   Videos Videos[]
 }
+
+model Usuario {
+  id    Int    @id @default(autoincrement())
+  nome  String
+  email String @unique
+  senha String
+}
