@@ -7,5 +7,4 @@ const port = 3000
 app.use(bodyParser.json())
 routes(app)
 
-
 app.listen(port, () => { console.log(`Server rodando na porta ${port}`)})
