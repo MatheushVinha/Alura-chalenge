@@ -113,17 +113,18 @@ module.exports = {
     }
 
     //page limiter
-    //TODO: Documentar
     try {
       if (page) {
-        
+
+
+
         const videosBase = await prisma.videos.findMany()
         const numberPages = Math.ceil(videosBase.length / 5)
 
         if (page > numberPages) {
           return res.status(400).json({ mensagem: "Pagina não encontrada" })
         }
-        const amountVideosInPage = 5
+        const amountInPage = 5
 
         let pagina = Number(page)
 
@@ -134,7 +135,7 @@ module.exports = {
         }
 
         let inicialLine = pagina - 1
-        let start = inicialLine * amountVideosInPage
+        let start = inicialLine * amountInPage
 
         const videoDaPagina = await prisma.videos.findMany({
           skip: start,
@@ -236,8 +237,5 @@ module.exports = {
       return res.status(500).json({ error: error.message })
     }
   },
-
-
-  
 
 }

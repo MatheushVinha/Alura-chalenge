@@ -1,6 +1,5 @@
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient
-const MiniSearch = require('minisearch')
 
 function ValidaBody(titulo, cor) {
 
@@ -81,74 +80,6 @@ module.exports = {
   },
 
   async showCategorias(req, res) {
-
-    const { search, page } = req.query
-
-    //query
-
-    try {
-      if(search) {
-        if (Array.isArray(search)) {
-          return res.status(400).json({ erro: 'Serch só pode receber uma propriedade' })
-        }
-
-        let minisearch = new MiniSearch({
-          fields: ['titulo'],
-          storageFields: ['id'],
-          searchOptions: {
-            fuzzy: 0.2,
-            prefix: true
-          },
-          tokenize: (string, _fieldName) => string.split('+')
-        })
-
-        const categoriaBase = await prisma.categorias.findMany({})
-
-        minisearch.addAll(categoriaBase)
-        let results = minisearch.search(decodeURIComponent(search)).map(resultado => resultado.id).slice(0, 5)
-        let resultsSearch = categoriaBase.filter(categoria => results.some(result => categoria.id == result))
-        return res.status(200).json({ resultsSearch })
-      }
-    } catch (error) {
-      res.status(500).json({ error: error.message })
-    }
-
-    try {
-      if (page) {
-        
-        const categoriaBase = await prisma.categorias.findMany()
-        const numberPages = Math.ceil(categoriaBase.length / 5)
-
-        if (page > numberPages) {
-          return res.status(400).json({ mensagem: "Pagina não encontrada" })
-        }
-        const amountCategoriasInPage = 5
-
-        let pagina = Number(page)
-
-        if (!pagina) {
-          pagina = 1
-        } else {
-          pagina = pagina
-        }
-
-        let inicialLine = pagina - 1
-        let start = inicialLine * amountCategoriasInPage
-
-        const categoriaDaPagina = await prisma.categorias.findMany({
-          skip: start,
-          take: 5
-        })
-
-        return res.json({ categoriaDaPagina })
-
-
-      }
-    } catch (error) {
-      return res.status(500).json({ error: error.message })
-    }
-
-
     try {
       const categorias = await prisma.categorias.findMany()
       res.status(200).json({ categorias })
