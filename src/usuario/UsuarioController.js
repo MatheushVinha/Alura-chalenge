@@ -1,23 +1,8 @@
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient
 const bcrypt = require('bcrypt')
-
-function validateBody(nome, email, senha) {
-
-  function error(field, min, max) {
-    throw new Error(`${field} não pode ser estar vazio, ter menos que ${min} caracteres ou mais que ${max}`)
-  }
-
-  if (!nome || nome.length > 30 || nome.length < 5)
-    error('nome', 3, 100)
-  if (!email || email.length > 250 || email.length < 5)
-    error('Email', 5, 250)
-  if (!senha || senha.length > 150 || senha.length < 5)
-    error('Senha', 6, 15)
-  if (!/^(?=.*[0-9])(?=.*[a-z]).{6,15}$/i.test(senha)) {
-    throw new Error('Senha tem que conter uma letra')
-  }
-}
+const jwt = require('jsonwebtoken')
+const { validateBody, validateUpdate } = require('../err/ValidateBody/validateUsuario')
 
 module.exports = {
 
@@ -41,7 +26,7 @@ module.exports = {
         data: {
           nome: nome,
           email: email,
-          senha: senhaHash
+          senha: senha
         }
       })
       res.json({ usuario })
@@ -73,9 +58,95 @@ module.exports = {
   },
 
   async showUsuarios(req, res) {
-    const user = await prisma.usuario.findMany()
+    try {
+      const usuario = await prisma.usuario.findMany()
+      res.status(200).json({ usuario })
+    } catch (error) {
+      return res.status(500).json({ error: error.message })
+    }
 
-    res.json(user)
+  },
+
+  async deleteUsuario(req, res) {
+
+    const { id } = req.params
+
+    try {
+
+      const usuario = await prisma.usuario.findUnique({
+        where: { id: Number(id) }
+      })
+      if (!usuario) {
+        return res.status(403).json({ error: "Usuario não encontrado" })
+      }
+
+      await prisma.usuario.delete({
+        where: { id: Number(id) }
+      })
+
+      res.status(202).json({ mensagem: `Usuario ${id} deletado` })
+
+
+    } catch (error) {
+      return res.status(500).json({ error: error.message })
+    }
+
+
+  },
+
+  async updateCategoria(req, res) {
+    const { id, nome, email, senha } = req.body
+
+    try {
+
+      validateUpdate(nome, email, senha)
+
+      let novaSenha = ''
+
+      if (!senha) {
+        novaSenha = senha
+      } else {
+        const senhaHash = await bcrypt.hash(senha, 12)
+        novaSenha = senhaHash
+      }
+
+      const updateUsuario = await prisma.usuario.update({
+        where: { id: Number(id) }
+        , data: {
+          nome: nome,
+          email: email,
+          senha: novaSenha
+        }
+      })
+
+      return res.json({ novaSenha })
+
+      const usuario = await prisma.usuario.findUnique({
+        where: { id: Number(id) }
+      })
+      if (!usuario) {
+        return res.status(500).json({ error: "Usuario não encontrado" })
+      }
+
+      res.status(202).json(usuario)
+
+    } catch (error) {
+      return res.status(500).json({ error: error.message })
+    }
+  },
+
+  async teste(req, res) {
+    const { nome } = req.body
+
+    const json = jwt.sign({ nome }, "supersecretPassworld")
+    const desegredo = jwt.decode(json)
+    const comparação = jwt.verify(json, "supersecretPassworld", (err) => {
+      if (err) {
+        return res.json({ m: 'erro' })
+      }
+    })
+
+    res.json({ json, desegredo, comparação })
 
 
   }
