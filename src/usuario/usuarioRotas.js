@@ -1,15 +1,17 @@
 const usuarioController = require('./UsuarioController')
+const autorização = require("../auth/bearer")
 
 module.exports = app => {
   app.route('/usuarios')
-    .post(usuarioController.newUsuario)
-    .get(usuarioController.showUsuarios)
-    .put(usuarioController.updateCategoria)
+    .post(autorização, usuarioController.newUsuario)
+    .get(autorização, usuarioController.showUsuarios)
+    .put(autorização, usuarioController.updateCategoria)
+
+  app.route('/usuarios/login')
+    .get(usuarioController.authLogin)
 
   app.route('/usuarios/:id')
-    .get(usuarioController.showUsuarioById)
-    .delete(usuarioController.deleteUsuario)
+    .get(autorização, usuarioController.showUsuarioById)
+    .delete(autorização, usuarioController.deleteUsuario)
 
-  app.route('/teste')
-    .get(usuarioController.teste)
 }

@@ -119,8 +119,6 @@ module.exports = {
         }
       })
 
-      return res.json({ novaSenha })
-
       const usuario = await prisma.usuario.findUnique({
         where: { id: Number(id) }
       })
@@ -135,21 +133,27 @@ module.exports = {
     }
   },
 
-  async teste(req, res) {
-    const { nome } = req.body
+  async authLogin(req, res) {
+    try {
+      const { email, senha } = req.body
 
-    const json = jwt.sign({ nome }, "supersecretPassworld")
-    const desegredo = jwt.decode(json)
-    const comparação = jwt.verify(json, "supersecretPassworld", (err) => {
-      if (err) {
-        return res.json({ m: 'erro' })
+      const usuario = await prisma.usuario.findUnique({ where: { email: email } })
+
+      if (!usuario) {
+        return res.status(404).json({ mensagem: "Senha ou email incorretos" })
       }
-    })
 
-    res.json({ json, desegredo, comparação })
+      if (!await bcrypt.compare(senha, usuario.senha)) {
+        return res.status(200).json({ mensagem: "Senha ou email incorretos" })
+      }
 
+      const token = jwt.sign({ id: usuario.id }, process.env.SECRET, { expiresIn: 300 })
 
-  }
+      return res.json({ auth: true, token })
+    } catch (error) {
+      return res.status(500).json({ error: error.message })
+    }
 
+  },
 
 }

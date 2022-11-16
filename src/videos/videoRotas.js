@@ -1,14 +1,16 @@
 const videosController = require('./videosController')
+const autorização = require("../auth/bearer")
+
 
 module.exports = app => {
   app.route('/videos')
-    .get(videosController.showVideos)
-    .post(videosController.newVideo)
+    .get(autorização, videosController.showVideos)
+    .post(autorização, videosController.newVideo)
   app.route('/videos/:id')
-    .get(videosController.showVideosByid)
-    .delete(videosController.deleteVideos)
+    .get(autorização, videosController.showVideosByid)
+    .delete(autorização, videosController.deleteVideos)
   app.route('/patch')
-    .put(videosController.updateVideos)
+    .put(autorização, videosController.updateVideos)
   app.route('/categorias/:id/videos/')
-    .get(videosController.showVideoByCategoria)
+    .get(autorização, videosController.showVideoByCategoria)
 }

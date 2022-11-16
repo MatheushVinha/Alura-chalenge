@@ -1,11 +1,12 @@
 const categoriasController = require('./categoriasController')
+const autorização = require("../auth/bearer")
 
 module.exports = app => {
   app.route('/categorias')
-    .post(categoriasController.newCategorias)
-    .get(categoriasController.showCategorias)
-    .put(categoriasController.updateCategorias)
+    .post(autorização, categoriasController.newCategorias)
+    .get(autorização, categoriasController.showCategorias)
+    .put(autorização, categoriasController.updateCategorias)
   app.route('/categorias/:id/')
-    .get(categoriasController.showCategoriaById)
-    .delete(categoriasController.deleteCategorias)
+    .get(autorização, categoriasController.showCategoriaById)
+    .delete(autorização, categoriasController.deleteCategorias)
 }
