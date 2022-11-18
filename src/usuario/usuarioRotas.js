@@ -4,7 +4,7 @@ const autorização = require("../auth/bearer")
 module.exports = app => {
   app.route('/usuarios')
     .post(usuarioController.newUsuario)
-    .get(autorização, usuarioController.showUsuarios)
+    .get(usuarioController.showUsuarios)
     .put(autorização, usuarioController.updateUsuario)
 
   app.route('/usuarios/login')
