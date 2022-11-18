@@ -6,28 +6,28 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
 model Videos {
-  id           Int        @id @default(autoincrement())
+  id           String     @id @default(auto()) @map("_id") @db.ObjectId
   titulo       String
   descricao    String
   url          String
   categorias   Categorias @relation(fields: [categoria_id], references: [id])
-  categoria_id Int
+  categoria_id String     @db.ObjectId
 }
 
 model Categorias {
-  id     Int      @id @default(autoincrement())
+  id     String   @id @default(auto()) @map("_id") @db.ObjectId
   titulo String   @unique
   cor    String
   Videos Videos[]
 }
 
 model Usuario {
-  id    Int    @id @default(autoincrement())
+  id    String @id @default(auto()) @map("_id") @db.ObjectId
   nome  String
   email String @unique
   senha String

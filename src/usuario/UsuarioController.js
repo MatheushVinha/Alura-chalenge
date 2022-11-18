@@ -26,7 +26,7 @@ module.exports = {
         data: {
           nome: nome,
           email: email,
-          senha: senha
+          senha: senhaHash
         }
       })
       res.json({ usuario })
@@ -41,12 +41,16 @@ module.exports = {
     try {
       const { id } = req.params
 
+      if(id.length < 24 ) {
+        return res.status(404).json({erro: "Id deve seguir o modelo do mongodb"})
+      }
+
       const usuario = await prisma.usuario.findUnique({
         where: {
-          id: Number(id)
+          id: String(id)
         }
       })
-
+      
       if (!usuario) {
         return res.status(400).json({ mensagem: "Usuario não encontrado" })
       }
@@ -74,14 +78,14 @@ module.exports = {
     try {
 
       const usuario = await prisma.usuario.findUnique({
-        where: { id: Number(id) }
+        where: { id: id}
       })
       if (!usuario) {
         return res.status(403).json({ error: "Usuario não encontrado" })
       }
 
       await prisma.usuario.delete({
-        where: { id: Number(id) }
+        where: { id: id }
       })
 
       res.status(202).json({ mensagem: `Usuario ${id} deletado` })
@@ -94,7 +98,7 @@ module.exports = {
 
   },
 
-  async updateCategoria(req, res) {
+  async updateUsuario(req, res) {
     const { id, nome, email, senha } = req.body
 
     try {
@@ -111,7 +115,7 @@ module.exports = {
       }
 
       const updateUsuario = await prisma.usuario.update({
-        where: { id: Number(id) }
+        where: { id: id }
         , data: {
           nome: nome,
           email: email,
@@ -120,7 +124,7 @@ module.exports = {
       })
 
       const usuario = await prisma.usuario.findUnique({
-        where: { id: Number(id) }
+        where: { id: id }
       })
       if (!usuario) {
         return res.status(500).json({ error: "Usuario não encontrado" })
@@ -147,7 +151,7 @@ module.exports = {
         return res.status(200).json({ mensagem: "Senha ou email incorretos" })
       }
 
-      const token = jwt.sign({ id: usuario.id }, process.env.SECRET, { expiresIn: 300 })
+      const token = jwt.sign({ id: usuario.id }, process.env.SECRET, { expiresIn: 3600 })
 
       return res.json({ auth: true, token })
     } catch (error) {
