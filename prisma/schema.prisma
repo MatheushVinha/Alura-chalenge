@@ -5,6 +5,10 @@ generator client {
   provider = "prisma-client-js"
 }
 
+
+
+
+
 datasource db {
   provider = "mongodb"
   url      = "mongodb://matheus:88008113as@cluster0.lujrwds.mongodb.net/test"

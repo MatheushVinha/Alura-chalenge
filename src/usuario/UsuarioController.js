@@ -41,8 +41,8 @@ module.exports = {
     try {
       const { id } = req.params
 
-      if(id.length < 24 ) {
-        return res.status(404).json({erro: "Id deve seguir o modelo do mongodb"})
+      if (id.length < 24) {
+        return res.status(404).json({ erro: "Id deve seguir o modelo do mongodb" })
       }
 
       const usuario = await prisma.usuario.findUnique({
@@ -50,7 +50,7 @@ module.exports = {
           id: String(id)
         }
       })
-      
+
       if (!usuario) {
         return res.status(400).json({ mensagem: "Usuario não encontrado" })
       }
@@ -78,7 +78,7 @@ module.exports = {
     try {
 
       const usuario = await prisma.usuario.findUnique({
-        where: { id: id}
+        where: { id: id }
       })
       if (!usuario) {
         return res.status(403).json({ error: "Usuario não encontrado" })
@@ -142,7 +142,7 @@ module.exports = {
       const { email, senha } = req.body
 
       const usuario = await prisma.usuario.findUnique({ where: { email: email } })
-
+      
       if (!usuario) {
         return res.status(404).json({ mensagem: "Senha ou email incorretos" })
       }
