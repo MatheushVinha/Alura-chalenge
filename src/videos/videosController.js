@@ -1,7 +1,7 @@
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient
 const MiniSearch = require('minisearch')
-const { validateBody, validateUpdate} = require('../err/ValidateBody/validateVideos')
+const { validateBody, validateUpdate } = require('../err/ValidateBody/validateVideos')
 
 module.exports = {
 
@@ -9,7 +9,7 @@ module.exports = {
     let { titulo, descricao, url, categoria_id } = req.body
 
     if (!categoria_id) {
-      categoria_id = 1
+      categoria_id = '1'
     }
     const categoria = await prisma.categorias.findUnique({ where: { id: categoria_id } })
     if (!categoria) {
@@ -40,7 +40,14 @@ module.exports = {
 
     try {
       const video = await prisma.videos.findUnique({
-        where: { id: Number(id) }
+        where: { id: id }, 
+        include: {
+          categorias: {
+            select: {
+              titulo: true
+            }
+          }
+        }
       })
       if (!video) {
         return res.status(400).json({ mensagem: "Video não encontrado" })
@@ -72,7 +79,7 @@ module.exports = {
           tokenize: (string, _fieldName) => string.split('+')
         })
 
-        const videosBase = await prisma.videos.findMany({})
+        const videosBase = await prisma.videos.findMany({ include: { categorias: { select: { titulo: true } } } })
 
         minisearch.addAll(videosBase)
         let results = minisearch.search(decodeURIComponent(search)).map(resultado => resultado.id).slice(0, 5)
@@ -89,7 +96,7 @@ module.exports = {
     //TODO: Documentar
     try {
       if (page) {
-        
+
         const videosBase = await prisma.videos.findMany()
         const numberPages = Math.ceil(videosBase.length / 5)
 
@@ -111,7 +118,8 @@ module.exports = {
 
         const videoDaPagina = await prisma.videos.findMany({
           skip: start,
-          take: 5
+          take: 5,
+          include: { categorias: { select: { titulo: true } } }
         })
 
         return res.json({ videoDaPagina })
@@ -125,7 +133,7 @@ module.exports = {
 
     //All videos
     try {
-      const videos = await prisma.videos.findMany()
+      const videos = await prisma.videos.findMany({ include: { categorias: { select: { titulo: true } } } })
       res.status(200).json({ videos })
     } catch (error) {
       return res.status(500).json({ error: error.message })
@@ -138,14 +146,14 @@ module.exports = {
     try {
 
       const video = await prisma.videos.findUnique({
-        where: { id: Number(id) }
+        where: { id: id }
       })
       if (!video) {
         return res.status(403).json({ error: "Video não encontrado" })
       }
 
       await prisma.videos.delete({
-        where: { id: Number(id) }
+        where: { id: id }
       })
 
       res.status(202).json({ mensagem: `Video ${id} deletado` })
@@ -163,7 +171,7 @@ module.exports = {
       validateUpdate(titulo, descricao, url)
 
       const updateVideo = await prisma.videos.update({
-        where: { id: Number(id) }
+        where: { id: id }
         , data: {
           titulo: titulo,
           descricao: descricao,
@@ -172,7 +180,7 @@ module.exports = {
       })
 
       const video = await prisma.videos.findUnique({
-        where: { id: Number(id) }
+        where: { id: id }
       })
       if (!video) {
         return res.status(500).json({ error: "Video não encontrado" })
@@ -192,7 +200,7 @@ module.exports = {
 
       const categorias = await prisma.categorias.findUnique({
         where: {
-          id: Number(id)
+          id: id
         },
         include: {
           Videos: {

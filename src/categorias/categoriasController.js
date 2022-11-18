@@ -39,7 +39,7 @@ module.exports = {
     try {
       const categoria = await prisma.categorias.findUnique({
         where: {
-          id: Number(id)
+          id: id
         }
       })
 
@@ -140,7 +140,7 @@ module.exports = {
     try {
       await prisma.categorias.delete({
         where: {
-          id: Number(id)
+          id: id
         }
       })
       res.status(200).json({ mensagem: `Video ${id} deletado` })
@@ -158,7 +158,7 @@ module.exports = {
       validateUpdate(id, titulo, cor)
 
       await prisma.categorias.update({
-        where: { id: Number(id) },
+        where: { id: id },
         data: {
           titulo: titulo,
           cor: cor
@@ -166,7 +166,7 @@ module.exports = {
       }
       )
       const categoria = await prisma.categorias.findUnique({
-        where: { id: Number(id) }
+        where: { id: id }
       })
       if (!categoria) {
         return res.status(400).json({ status: 'Categoria não encontrada' })

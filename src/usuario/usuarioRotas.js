@@ -3,9 +3,9 @@ const autorização = require("../auth/bearer")
 
 module.exports = app => {
   app.route('/usuarios')
-    .post(autorização, usuarioController.newUsuario)
+    .post(usuarioController.newUsuario)
     .get(autorização, usuarioController.showUsuarios)
-    .put(autorização, usuarioController.updateCategoria)
+    .put(autorização, usuarioController.updateUsuario)
 
   app.route('/usuarios/login')
     .get(usuarioController.authLogin)
